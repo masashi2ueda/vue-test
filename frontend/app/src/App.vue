@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive , computed} from 'vue'
+import { ref, reactive , computed, onMounted, watch} from 'vue'
 
 // reference test
 const counter = reactive({ count: 0});
@@ -19,13 +19,19 @@ function onInput(e) {
 }
 const text2 = ref('')
 
+////////////////
 // condition rendering
+////////////////
+
 const cr_flag = ref(true)
 function cr_toggle() {
   cr_flag.value = !cr_flag.value
 }
 
+////////////////
 // list rendering
+////////////////
+
 let lr_id = 0
 const lr_newTodo = ref('')
 const lr_todos = ref([
@@ -41,7 +47,9 @@ function lr_removeTodo(todo) {
   lr_todos.value = lr_todos.value.filter((t) => t !== todo)
 }
 
+////////////////
 // calc property
+////////////////
 let cp_id = 0
 const cp_newTodo = ref('')
 const cp_hideCompleted = ref(false)
@@ -68,6 +76,37 @@ function cp_addTodo() {
 function cp_removeTodo(todo) {
   cp_todos.value = cp_todos.value.filter((t) => t!==todo)
 }
+
+////////////////
+// life cycle templete
+////////////////
+const lct_ref = ref(null)
+onMounted(() =>{
+  // これはdomの値をpの値を編集していることになる
+  lct_ref.value.textContent = 'mounted'
+})
+
+////////////////
+// watcher
+////////////////
+const w_todoId = ref(1)
+const w_todoData = ref(null)
+
+async function w_fetchData() {
+  // nullにすると、一旦v-ifがfalseになる
+  w_todoData.value = null
+  // jsonplaceholderというtest用のオープンapiがある
+  const res = await fetch(
+    `https://jsonplaceholder.typicode.com/todos/${w_todoId.value}`
+  )
+  // 値が入るとv-ifがtrueになる
+  w_todoData.value = await res.json()
+}
+// 最初のfetchする
+w_fetchData()
+// 監視をやる
+watch(w_todoId, w_fetchData)
+
 </script>
 
 <template>
@@ -90,12 +129,17 @@ function cp_removeTodo(todo) {
   <input v-model="text2" placeholder="type here">
   <p>{{ text2 }}</p>
 
-  <!-- condition rendering -->
+  <!--
+  condition rendering
+  -->
   <button @click="cr_toggle"> cr_toggle</button>
   <h1 v-if="cr_flag">vue is awesome</h1>
   <h1 v-else>oh no</h1>
 
-  <!-- list rendering -->
+
+  <!--
+  list rendering 
+  -->
   <form @submit.prevent="lr_addTodo">
     <input v-model="lr_newTodo" required placeholder="new todo">
     <button>Add todo1</button>
@@ -113,7 +157,10 @@ function cp_removeTodo(todo) {
   <br/>
   <hr/>
 
-  <!-- calc propetry -->
+
+  <!--
+  calc propetry
+  -->
   <h1>calc propetry</h1>
   <form @submit.prevent="cp_addTodo">
     <input v-model="cp_newTodo" required placeholder="new todo">
@@ -131,6 +178,30 @@ function cp_removeTodo(todo) {
   </button>
   <br/>
   <hr/>
+
+
+  <!--
+  life cycle templete
+  -->
+  <h1>life cycle templete</h1>
+  <!-- 下のdomの要素をscriptの中で使うことができる -->
+  <p ref="lct_ref">hello1</p>
+  <br/>
+  <hr/>
+
+
+  <!--
+  watcher
+  -->
+  <h1>watcher</h1>
+  <p>todo id: {{  w_todoId }}</p>
+  <button @click="w_todoId++" :disabled="!w_todoData">fetch next todo</button>
+  <p v-if="!w_todoData">loading...</p>
+  <!-- jsonを綺麗に表示する -->
+  <pre v-else>{{ w_todoData }}</pre>
+  <br/>
+  <hr/>
+
 
 </template>
 
