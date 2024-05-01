@@ -133,7 +133,7 @@ function ft_onClick(){
 // コンポーザブル
 ////////////////
 import { useMouse } from './mouse.js'
-const {mouse_x, mouse_y  } = useMouse()
+const mouse_pos = reactive(useMouse())
 
 </script>
 
@@ -266,7 +266,7 @@ const {mouse_x, mouse_y  } = useMouse()
   -->
   <h1>コンポーザブル</h1>
   <!-- mybuttonの中のclickに自動的に結び付けられる -->
-  Mouse position is at: {{ mouse_x }}, {{ mouse_y }}
+  Mouse position is at: {{ mouse_pos.x }}, {{ mouse_pos.y }}
   <br/>
   <hr/>
 </template>
