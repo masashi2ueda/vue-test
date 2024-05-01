@@ -112,8 +112,28 @@ watch(w_todoId, w_fetchData)
 ////////////////
 import ChildComp from './ChildComp.vue';
 const cmp_greeting = ref('Hello from parent')
-const childMsg1 = ref('no msg1')
-const childMsg2 = ref('no msg2')
+const cmp_childMsg1 = ref('no msg1')
+const cmp_childMsg2 = ref('no msg2')
+function cmp_Emit(val1, val2){
+  console.log(val1, val2)
+  cmp_childMsg2.value =val1 + val2
+}
+const chModel1 = ref(1);
+const chModel2 = ref(2);
+
+////////////////
+// フォールスルー
+////////////////
+import MyButton from "./MyButton.vue"
+function ft_onClick(){
+  console.log("フォールスルー")
+}
+
+////////////////
+// コンポーザブル
+////////////////
+import { useMouse } from './mouse.js'
+const {mouse_x, mouse_y  } = useMouse()
 
 </script>
 
@@ -215,16 +235,40 @@ const childMsg2 = ref('no msg2')
   child component
   -->
   <h1>Child compoment</h1>
-  <ChildComp :msg="cmp_greeting" @response1="(msg) => childMsg1=msg" @response2="(msg) => childMsg2=msg">
+  <ChildComp :msg="cmp_greeting"
+    @response1="(msg) => cmp_childMsg1=msg"
+    @response2="cmp_Emit"
+    v-model:chModel1="chModel1"
+    v-model:chModel2="chModel2"
+    >
     <template v-slot:slotname1>pa1</template>
     <template v-slot:slotname2>pa2</template>
   </ChildComp>
-  {{ childMsg1 }}
-  {{ childMsg2 }}
+  <p>cmp_childMsg1: {{ cmp_childMsg1 }}</p>
+  <p>cmp_childMsg2: {{ cmp_childMsg2 }}</p>
   <button @click="cmp_greeting+='_a'">add a</button>
+  <p>chModel1: {{ chModel1 }}</p>
+  <p>chModel2: {{ chModel2 }}</p>
   <br/>
   <hr/>
 
+  <!--
+  フォールスルー
+  -->
+  <h1>フォールスルー</h1>
+  <!-- mybuttonの中のclickに自動的に結び付けられる -->
+  <MyButton class="large" @click="ft_onClick"></MyButton>
+  <br/>
+  <hr/>
+
+  <!--
+  コンポーザブル
+  -->
+  <h1>コンポーザブル</h1>
+  <!-- mybuttonの中のclickに自動的に結び付けられる -->
+  Mouse position is at: {{ mouse_x }}, {{ mouse_y }}
+  <br/>
+  <hr/>
 </template>
 
 <style>
