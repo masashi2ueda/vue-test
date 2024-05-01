@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive , computed} from 'vue'
 
 // reference test
 const counter = reactive({ count: 0});
@@ -40,6 +40,34 @@ function lr_addTodo() {
 function lr_removeTodo(todo) {
   lr_todos.value = lr_todos.value.filter((t) => t !== todo)
 }
+
+// calc property
+let cp_id = 0
+const cp_newTodo = ref('')
+const cp_hideCompleted = ref(false)
+const cp_todos = ref([
+  {id: cp_id++, text: 'cp1', done: true},
+  {id: cp_id++, text: 'cp2', done: true},
+  {id: cp_id++, text: 'cp3', done: false},
+])
+const cp_fiteredTodos = computed(() =>{
+  // computedの中で使われる値(cp_hideCompletedの状態更新を追跡して、cp_fiteredTodosを使っている表示の結果が更新される)
+  const is_hide = cp_hideCompleted.value
+  let dst = null
+  if(is_hide){
+    dst = cp_todos.value.filter((t) => !t.done)
+  }else{
+    dst = cp_todos.value
+  }
+  return dst
+})
+function cp_addTodo() {
+  cp_todos.value.push({id: cp_id++, text: cp_newTodo.value, done: false})
+  cp_newTodo.value = ''
+}
+function cp_removeTodo(todo) {
+  cp_todos.value = cp_todos.value.filter((t) => t!==todo)
+}
 </script>
 
 <template>
@@ -70,15 +98,39 @@ function lr_removeTodo(todo) {
   <!-- list rendering -->
   <form @submit.prevent="lr_addTodo">
     <input v-model="lr_newTodo" required placeholder="new todo">
-    <button>Add todo</button>
+    <button>Add todo1</button>
   </form>
+  <!-- 上と下との違いがわからない -->
+  <input v-model="lr_newTodo" required placeholder="new todo">
+  <button @click="lr_addTodo">Add todo2</button>
   <ul>
+    <!-- idをつけてちゃんとvueに別物であることを伝える -->
     <li v-for="todo in lr_todos" :key="todo.id">
       {{  todo.text }}
       <button @click="lr_removeTodo(todo)">X</button>
     </li>
   </ul>
+  <br/>
+  <hr/>
 
+  <!-- calc propetry -->
+  <h1>calc propetry</h1>
+  <form @submit.prevent="cp_addTodo">
+    <input v-model="cp_newTodo" required placeholder="new todo">
+    <button>add todo</button>
+  </form>
+  <ul>
+    <li v-for="todo in cp_fiteredTodos" :key="todo.id">
+      <input type="checkbox" v-model="todo.done">
+      <span :class="{cp_done: todo.done}">{{ todo.text }}</span>
+      <button @click="cp_removeTodo(todo)">X</button>
+    </li>
+  </ul>
+  <button @click="cp_hideCompleted = !cp_hideCompleted">
+    {{  cp_hideCompleted ? 'show all' : "hide completed" }}
+  </button>
+  <br/>
+  <hr/>
 
 </template>
 
@@ -86,6 +138,11 @@ function lr_removeTodo(todo) {
 /* binde test */
 .titleStyle{
   color: red;
+}
+
+/* calc property */
+.cp_done {
+  text-decoration: line-through;
 }
 
 </style>
