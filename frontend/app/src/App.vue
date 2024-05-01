@@ -25,6 +25,21 @@ function cr_toggle() {
   cr_flag.value = !cr_flag.value
 }
 
+// list rendering
+let lr_id = 0
+const lr_newTodo = ref('')
+const lr_todos = ref([
+  {id: lr_id++, text: 'lr1'},
+  {id: lr_id++, text: 'lr2'},
+  {id: lr_id++, text: 'lr3'},
+])
+function lr_addTodo() {
+  lr_todos.value.push({id: lr_id++, text: lr_newTodo.value})
+  lr_newTodo.value = ''
+}
+function lr_removeTodo(todo) {
+  lr_todos.value = lr_todos.value.filter((t) => t !== todo)
+}
 </script>
 
 <template>
@@ -51,6 +66,19 @@ function cr_toggle() {
   <button @click="cr_toggle"> cr_toggle</button>
   <h1 v-if="cr_flag">vue is awesome</h1>
   <h1 v-else>oh no</h1>
+
+  <!-- list rendering -->
+  <form @submit.prevent="lr_addTodo">
+    <input v-model="lr_newTodo" required placeholder="new todo">
+    <button>Add todo</button>
+  </form>
+  <ul>
+    <li v-for="todo in lr_todos" :key="todo.id">
+      {{  todo.text }}
+      <button @click="lr_removeTodo(todo)">X</button>
+    </li>
+  </ul>
+
 
 </template>
 
