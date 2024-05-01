@@ -86,12 +86,12 @@ onMounted(() =>{
   lct_ref.value.textContent = 'mounted'
 })
 
+
 ////////////////
 // watcher
 ////////////////
 const w_todoId = ref(1)
 const w_todoData = ref(null)
-
 async function w_fetchData() {
   // nullにすると、一旦v-ifがfalseになる
   w_todoData.value = null
@@ -104,8 +104,16 @@ async function w_fetchData() {
 }
 // 最初のfetchする
 w_fetchData()
-// 監視をやる
+// 監視をやる→w_todoIdが変更されると、w_fetchDataが走る
 watch(w_todoId, w_fetchData)
+
+////////////////
+// component
+////////////////
+import ChildComp from './ChildComp.vue';
+const cmp_greeting = ref('Hello from parent')
+const childMsg1 = ref('no msg1')
+const childMsg2 = ref('no msg2')
 
 </script>
 
@@ -202,6 +210,20 @@ watch(w_todoId, w_fetchData)
   <br/>
   <hr/>
 
+
+  <!--
+  child component
+  -->
+  <h1>Child compoment</h1>
+  <ChildComp :msg="cmp_greeting" @response1="(msg) => childMsg1=msg" @response2="(msg) => childMsg2=msg">
+    <template v-slot:slotname1>pa1</template>
+    <template v-slot:slotname2>pa2</template>
+  </ChildComp>
+  {{ childMsg1 }}
+  {{ childMsg2 }}
+  <button @click="cmp_greeting+='_a'">add a</button>
+  <br/>
+  <hr/>
 
 </template>
 
