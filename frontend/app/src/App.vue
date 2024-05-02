@@ -82,13 +82,13 @@ function cp_removeTodo(todo) {
 ////////////////
 const lct_ref = ref(null)
 onMounted(() =>{
-  // これはdomの値をpの値を編集していることになる
+  // これはdomの値を編集していることになる
   lct_ref.value.textContent = 'mounted'
 })
 
 
 ////////////////
-// watcher
+// watcher: 変数の変化を監視してイベントを発行できる
 ////////////////
 const w_todoId = ref(1)
 const w_todoData = ref(null)
@@ -108,7 +108,7 @@ w_fetchData()
 watch(w_todoId, w_fetchData)
 
 ////////////////
-// component
+// component: 子vueコンポーネントに値を渡したりする
 ////////////////
 import ChildComp from './ChildComp.vue';
 const cmp_greeting = ref('Hello from parent')
@@ -122,7 +122,7 @@ const chModel1 = ref(1);
 const chModel2 = ref(2);
 
 ////////////////
-// フォールスルー
+// フォールスルー: 子コンポーネントに自動的にプロパティが設定される
 ////////////////
 import MyButton from "./MyButton.vue"
 function ft_onClick(){
@@ -130,10 +130,38 @@ function ft_onClick(){
 }
 
 ////////////////
-// コンポーザブル
+// コンポーザブル: 機能を部品化して再利用可能
 ////////////////
 import { useMouse } from './mouse.js'
 const mouse_pos = reactive(useMouse())
+
+////////////////
+// keepalive: 一旦消えても値を保つ
+////////////////
+import { shallowRef } from 'vue'
+import KeepAlive1 from './KeepAlive1.vue'
+import KeepAlive2 from './KeepAlive2.vue'
+// shallowRefでは中の値まではreactiveにならない
+// a.value.aa = 1では動かないが、a.value = {a:1, b:2}では動く
+// radioの最初を決める
+const kp_current = shallowRef(KeepAlive1)
+
+////////////////
+// ルーティング
+////////////////
+import Root1 from './Root1.vue'
+import Root2 from './Root2.vue'
+const rt_routes = {
+  '/root1': Root1,
+  '/root2': Root2
+}
+const rt_currentPath = ref(window.location.hash)
+window.addEventListener('hashchange', () =>{
+  rt_currentPath.value = window.location.hash
+})
+const rt_currentView = computed(() => {
+  return rt_routes[rt_currentPath.value.slice(1) || '/']
+})
 
 </script>
 
@@ -269,6 +297,35 @@ const mouse_pos = reactive(useMouse())
   Mouse position is at: {{ mouse_pos.x }}, {{ mouse_pos.y }}
   <br/>
   <hr/>
+
+
+  <!--
+  Keep ALive
+  -->
+  <div class="demo">
+    <label><input type="radio" v-model="kp_current" :value="KeepAlive1" /> A1</label>
+    <label><input type="radio" v-model="kp_current" :value="KeepAlive2" /> A2</label>
+    <!-- これがない値が初期化されてしまう -->
+    <KeepAlive>
+      <component :is="kp_current"></component>
+    </KeepAlive>
+    <button @click="console.log(kp_current)">show kp_current</button>
+  </div>
+  <br/>
+  <hr/>
+
+  <!--
+  routing
+  -->
+  <div>
+    <a href="#/root1">Root1</a> |
+    <a href="#/root2">Root2</a> |
+    <component :is="rt_currentView" />
+    <button @click="console.log(rt_currentView)">show rt_currentView</button>
+  </div>
+  <br/>
+  <hr/>
+
 </template>
 
 <style>
